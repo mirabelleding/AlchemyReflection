@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SA-Reflection"
+version = "1.0.0"
+description = "Lightweight SQLAlchemy abstractions for database access and DataFrame retrieval"
+readme = "README.md"
+requires-python = ">=3.10"
+
+authors = [
+    { name = "MI77-LAB" }
+]
+
+dependencies = [
+    "sqlalchemy>=2.0",
+    "pandas>=2.0",
+    "polars>=1.0",
+    "pyodbc>=5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["sa_reflect"]
