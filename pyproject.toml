@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "SA-Reflection"
-version = "0.1.0"
+version = "0.1.1"
 description = "Lightweight SQLAlchemy abstractions for database access and DataFrame retrieval"
 readme = "README.md"
 requires-python = ">=3.10"

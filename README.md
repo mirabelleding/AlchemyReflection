@@ -23,35 +23,39 @@ DATABASE=database_name;
 UID=username;
 PWD=password;
 ```
+
 ## Basic Usage
 ```python
 import os
 
 from sqlalchemy import select
-from sa_reflect import Database
+from sa_reflection import Database
 
 # Initialize database connection
 db = Database(os.environ["DB_ODBC"])
 
-# Search/View database objects
+# Search and display database objects
 db.catalogue("some keywords", display=True)
 
-# Instantiate a reflected table
+# Instantiate a ReflectedTable
 table = db.reflect("schemaname.tablename")
 
-# Load table into pandas/polars DataFrame
+# Retrieve table as DataFrames
 pd_df = table.to_pd()
 pl_df = table.to_pl()
 
-# Query using native SQLAlchemy expressions
+# Create a query using ReflectedTable.select()
+stmt = table.select()
+
+# Create a query using native SQLAlchemy expressions
 stmt = select(table).where(table.c.status == "pending")
 
-# Load query results into pandas/polars DataFrame
-pd_df = db.to_pd(stmt)
-pl_df = db.to_pl(stmt)
+# Execute query and retrieve DataFrames
+pd_df = db.query(stmt).to_pd(stmt)
+pl_df = db.query(stmt).to_pl(stmt)
 
 # Inspect table metadata
-accounts.inspect()
+table.inspect()
 ```
 ## Advanced SQLAlchemy Queries
 
@@ -77,30 +81,28 @@ en_cours = (
     .cte("en_cours")
 )
 
-next_inventions = db.to_pd(
-    select(
-        inspirations.c.name.label("inspiration"),
-        unfinished.c.name.label("experiment"),
-    )
-    .join(
-        unfinished,
-        unfinished.c.inspiration_id == inspirations.c.inspiration_id,
-    )
-    .where(
-        unfinished.c.rn == 1,
-        inspirations.c.source == "some magic",
-        ~exists(
-            select(1)
-            .select_from(archives.sa)
-            .where(
+next_inventions = (
+    db.query(
+        select(
+            inspirations.c.name.label("inspiration"),
+            unfinished.c.name.label("experiment"),
+        )
+        .join(
+            unfinished,
+            unfinished.c.inspiration_id == inspirations.c.inspiration_id,
+        )
+        .where(
+            unfinished.c.rn == 1,
+            inspirations.c.source == "some magic",
+            ~exists().where(
                 archives.c.experiment_id == unfinished.c.experiment_id
-            )
-        ),
+                )
+            ),
+        )
     )
+    .to_pl()
 )
 ```
-
-`to_pd()` and `to_pl()` also accept SQLAlchemy `FromClause` objects, including tables and subqueries; these are automatically wrapped in `select()`.
 
 ## Multiple Database Connections
 
@@ -108,11 +110,8 @@ next_inventions = db.to_pd(
 dev = Database(os.environ["DEV_ODBC"])
 test = Database(os.environ["TEST_ODBC"])
 
-dev_table = dev.reflect("schemaname.tablename")
-test_table = test.reflect("schemaname.tablename")
-
-dev_df = dev_table.to_pd()
-test_df = test_table.to_pl()
+dev_df = dev.reflect("schemaname.tablename").to_pd()
+test_df = test.reflect("schemaname.tablename").to_pl()
 
 dev.dispose()
 test.dispose()
@@ -120,14 +119,15 @@ test.dispose()
 
 ## Interface
 
-| Class | Methods / Attributes |
+| Class | Attributes / Methods |
 | --- | --- |
-| `Database` | `engine`, `reflect()`, `catalogue()`, `to_pd()`, `to_pl()`, `dispose()` |
+| `Database` | `engine`, `reflect()`, `catalogue()`, `query()`, `dispose()` |
 | `ReflectedTable` | `sa`, `c`, `select()`, `inspect()`, `to_pd()`, `to_pl()` |
+| `QueryExecutor` | `stmt_or_table`, `engine`, `to_pd()`, `to_pl()` |
 
-`table.sa` exposes the underlying SQLAlchemy `Table` when a native table object is required. Native SQLAlchemy expressions such as `select(table)` are supported through the clause-element protocol.
+`Database.reflect()` returns a `ReflectedTable`, while `Database.query()` returns a `QueryExecutor` that accepts SQLAlchemy selectable objects and provides DataFrame retrieval through `to_pd()` and `to_pl()`.
 
-Connection credentials should be managed through environment variables or a secrets manager.
+`ReflectedTable.sa` exposes the underlying SQLAlchemy `Table` when a native table object is required. Native SQLAlchemy expressions such as `select(table)` are supported through the clause-element protocol.
 
 ## Design Philosophy
 
