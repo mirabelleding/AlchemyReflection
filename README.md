@@ -1,13 +1,12 @@
-# SA-Reflection
+# Alchemy-Reflection
 
-A lightweight Python package built on **SQLAlchemy** for database connection management, table reflection, schema inspection, and data retrieval using **pandas** and **Polars**.
-
-The package provides an object-oriented interface for managing multiple database connections, inspecting database schemas, reflecting tables, while retaining full support for native SQLAlchemy query expressions.
+A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and DataFrame retrieval.
+Designed with an emphasis on API ergonomics and method chaining, the object-oriented interface preserves native SQLAlchemy functionality and interoperability with pandas and Polars.
 
 ## Installation
 
 ```bash
-pip install git+https://github.com/mirabelleding/sa_reflection.git
+pip install git+ssh://git@github.com/mirabelleding/AlchemyReflection.git
 ```
 *Currently targets **SQL Server** through `mssql+pyodbc`. Requires an installed ODBC driver.*
 
@@ -29,7 +28,7 @@ PWD=password;
 import os
 
 from sqlalchemy import select
-from sa_reflection import Database
+from alchemy_reflection import Database
 
 # Initialize database connection
 db = Database(os.environ["DB_ODBC"])
@@ -61,46 +60,70 @@ table.inspect()
 
 SQL construction remains entirely native to SQLAlchemy. Below are examples of advanced query expressions and direct DataFrame retrieval.
 ```python
-from sqlalchemy import func, select
-
-experiments = db.reflect("mi77_lab.experiments")
-inspirations = db.reflect("mi77_lab.inspirations")
-archives = db.reflect("mi77_lab.archives")
+import hashlib
+from sqlalchemy import select, func, exists, or_
 
 en_cours = (
-    select(
-        experiments.c.experiment_id,
-        experiments.c.inspiration_id,
-        experiments.c.name,
-        func.row_number().over(
-            partition_by=experiments.c.inspiration_id,
-            order_by=experiments.c.updated_at.desc(),
-        ).label("rn"),
+    (e := db.reflect("mi77_lab.experiments").sa.alias("e"))
+    .select()
+    .where(
+        e.c.status.in_(["unfinished", "in_exploration"]),
+        ~exists().where(
+            db.reflect("mi77_lab.archives").sa.c.experiment_id
+            == e.c.experiment_id
+        ),
     )
-    .where(experiments.c.status == "unfinished")
+    .add_columns(
+        func.row_number().over(
+            partition_by=e.c.inspiration_id,
+            order_by=e.c.updated_at.desc(),
+        ).label("rn")
+    )
     .cte("en_cours")
 )
 
+# Now the art of composition
 next_inventions = (
     db.query(
         select(
-            inspirations.c.name.label("inspiration"),
-            unfinished.c.name.label("experiment"),
+            (i := db.reflect("mi77_lab.inspirations").sa.alias("i"))
+            .c.name.label("inspiration"),
+            i.c.category,
+            en_cours.c.name.label("invention"),
+            en_cours.c.updated_at,
         )
-        .join(
-            unfinished,
-            unfinished.c.inspiration_id == inspirations.c.inspiration_id,
-        )
+        .join(en_cours, en_cours.c.inspiration_id == i.c.inspiration_id)
         .where(
-            unfinished.c.rn == 1,
-            inspirations.c.source == "some magic",
-            ~exists().where(
-                archives.c.experiment_id == unfinished.c.experiment_id
-                )
+            en_cours.c.rn == 1,
+            or_(
+                i.c.source.in_(["some magic", "...and more"]),
+                i.c.intrigue >= 7,
             ),
         )
     )
-    .to_pl()
+    .to_pd()
+    .pipe(refactor_atelier)
+    .groupby("category")
+    .get_group("nouveau")
+    .astype({"introspection": "string"})
+    .sort_values(
+        ["updated_at", "essence"],
+        ascending=[False, False],
+    )
+    .assign(
+        imprint=lambda df: (
+            df.astype(str)
+            .agg("-".join, axis=1)
+            .map(
+                lambda value: hashlib.blake2s(
+                    value.encode(),
+                    digest_size=7,
+                ).hexdigest()
+            )
+        )
+    )
+    .loc[:, cols]
+    .to_numpy()
 )
 ```
 

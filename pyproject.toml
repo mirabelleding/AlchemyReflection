@@ -3,7 +3,7 @@ requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "SA-Reflection"
+name = "AlchemyReflection"
 version = "0.1.1"
 description = "Lightweight SQLAlchemy abstractions for database access and DataFrame retrieval"
 readme = "README.md"
@@ -24,4 +24,4 @@ dependencies = [
 Repository = "https://github.com/mirabelleding/sa_reflection"
 
 [tool.setuptools.packages.find]
-where = ["sa_reflect"]
+where = ["alchemy_reflect"]
