@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pandas as pd
-import polars as pl
 from pprint import pprint
 
 from sqlalchemy import (
@@ -9,26 +7,31 @@ from sqlalchemy import (
     Table,
     create_engine,
     inspect,
-    select,
 )
 from sqlalchemy.engine import Engine, URL
 from sqlalchemy.sql.selectable import FromClause, SelectBase
 
 from .reflection import ReflectedTable
+from .executor import QueryExecutor
 
 
 class Database: 
-    def __init__(self, odbc_string: str) -> None:
-        self.odbc_string = odbc_string
+    def __init__(
+        self, 
+        _odbc: str
+    ) -> None:
+        
+        self._odbc = _odbc
         self.metadata = MetaData()
         self._engine: Engine | None = None
 
     @property
     def engine(self) -> Engine:
+
         if self._engine is None:
             url = URL.create(
                 "mssql+pyodbc",
-                query={"odbc_connect": self.odbc_string},
+                query={"odbc_connect": self._odbc},
             )
 
             self._engine = create_engine(
@@ -44,7 +47,7 @@ class Database:
         source: str
     ) -> ReflectedTable:
         
-        schema, tablename = source.rpartition(".", 1)
+        schema, _, tablename = source.rpartition(".")
 
         return (
             ReflectedTable(
@@ -59,26 +62,12 @@ class Database:
         )
 
 
-    def to_pd(
+    def query(
         self,
-        table_or_stmt: SelectBase | FromClause,
-    ) -> pd.DataFrame:
-        if isinstance(table_or_stmt, FromClause):
-            table_or_stmt = select(table_or_stmt)
-
-        with self.engine.connect() as conn:
-            return pd.read_sql_query(table_or_stmt, conn)
-
-
-    def to_pl(
-        self,
-        table_or_stmt: SelectBase | FromClause,
-    ) -> pl.DataFrame:
-        if isinstance(table_or_stmt, FromClause):
-            table_or_stmt = select(table_or_stmt)
-
-        with self.engine.connect() as conn:
-            return pl.read_database(table_or_stmt, conn)
+        statement: SelectBase | FromClause,
+    ) -> QueryExecutor:
+        
+        return QueryExecutor(statement, self.engine)
 
 
     def catalogue(
@@ -98,6 +87,8 @@ class Database:
         }
 
         if keyword is not None:
+            keyword = keyword.lower()
+
             catalogue = {
                 schema: {
                     obj_type: [
@@ -122,6 +113,7 @@ class Database:
 
 
     def dispose(self) -> None:
+        
         if self._engine is not None:
             self._engine.dispose()
             self._engine = None
