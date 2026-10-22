@@ -1,6 +1,6 @@
 # Alchemy-Reflection
 
-A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and DataFrame retrieval.
+A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and DataFrame retrieval.</br>
 Designed with an emphasis on API ergonomics and method chaining, the object-oriented interface preserves native SQLAlchemy functionality and interoperability with pandas and Polars.
 
 ## Installation
@@ -44,10 +44,10 @@ pd_df = table.to_pd()
 pl_df = table.to_pl()
 
 # Create a query using ReflectedTable.select()
-stmt = table.select()
+stmt = table.select().where(...)
 
 # Create a query using native SQLAlchemy expressions
-stmt = select(table).where(table.c.status == "pending")
+stmt = select(table).where(...)
 
 # Execute query and retrieve DataFrames
 pd_df = db.query(stmt).to_pd(stmt)
@@ -96,7 +96,7 @@ next_inventions = (
         .where(
             en_cours.c.rn == 1,
             or_(
-                i.c.source.in_(["some magic", "...and more"]),
+                i.c.source.in_(["some magic", "and more..."]),
                 i.c.intrigue >= 7,
             ),
         )

@@ -20,7 +20,6 @@ class Database:
         self,
         _odbc: str
     ) -> None:
-
         self._odbc = _odbc
         self.metadata = MetaData()
         self._engine: Engine | None = None
@@ -33,7 +32,6 @@ class Database:
                 "mssql+pyodbc",
                 query={"odbc_connect": self._odbc},
             )
-
             self._engine = create_engine(
                 url,
                 pool_pre_ping=True,
@@ -48,7 +46,6 @@ class Database:
     ) -> ReflectedTable:
 
         schema, _, tablename = source.rpartition(".")
-
         return (
             ReflectedTable(
                 Table(
@@ -66,7 +63,6 @@ class Database:
         self,
         statement: SelectBase | FromClause,
     ) -> QueryExecutor:
-
         return QueryExecutor(statement, self.engine)
 
 
@@ -77,7 +73,6 @@ class Database:
     ) -> dict[str, dict[str, list[str]]]:
 
         inspector = inspect(self.engine)
-
         catalogue = {
             schema: {
                 "tables": inspector.get_table_names(schema=schema),
@@ -88,7 +83,6 @@ class Database:
 
         if keyword is not None:
             keyword = keyword.lower()
-
             catalogue = {
                 schema: {
                     obj_type: [
@@ -108,12 +102,10 @@ class Database:
 
         if display:
             pprint(catalogue)
-
         return catalogue
 
 
     def dispose(self) -> None:
-
         if self._engine is not None:
             self._engine.dispose()
             self._engine = None

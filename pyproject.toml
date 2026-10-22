@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "AlchemyReflection"
 version = "0.1.1"
-description = "Lightweight SQLAlchemy abstractions for database access and DataFrame retrieval"
+description = "An object-oriented interface for SQLAlchemy, built around method chaining and pandas/Polars interoperability."
 readme = "README.md"
 requires-python = ">=3.10"
 
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/mirabelleding/sa_reflection"
+Repository = "https://github.com/mirabelleding/AlchemyReflection"
 
 [tool.setuptools.packages.find]
-where = ["alchemy_reflect"]
+where = ["alchemy_reflection"]

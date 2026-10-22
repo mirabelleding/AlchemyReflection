@@ -23,37 +23,32 @@ class ReflectedTable:
         table: Table,
         database: Database,
     ) -> None:
-        
         self.sa = table
         self.database = database
 
 
     def __clause_element__(self) -> Table:
-
         return self.sa
 
     @property
     def c(self):
-
         return self.sa.c
-    
+
 
     def select(self) -> Select:
-
         return select(self.sa)
 
 
     def to_pd(self) -> pd.DataFrame:
-
         return self.database.query(self.sa).to_pd()
 
-    def to_pl(self) -> pl.DataFrame:
 
+    def to_pl(self) -> pl.DataFrame:
         return self.database.query(self.sa).to_pl()
 
 
     def inspect(self) -> None:
-        
+
         meta = {
             "schema": self.sa.schema,
             "table": self.sa.name,
