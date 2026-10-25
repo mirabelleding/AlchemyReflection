@@ -8,25 +8,21 @@ from sqlalchemy import (
     create_engine,
     inspect,
 )
-from sqlalchemy.engine import Engine, URL
+from sqlalchemy.engine import URL, Engine
 from sqlalchemy.sql.selectable import FromClause, SelectBase
 
-from .reflection import ReflectedTable
 from .execution import QueryExecutor
+from .reflection import ReflectedTable
 
 
 class Database:
-    def __init__(
-        self,
-        _odbc: str
-    ) -> None:
+    def __init__(self,_odbc: str) -> None:
         self._odbc = _odbc
         self.metadata = MetaData()
         self._engine: Engine | None = None
 
     @property
     def engine(self) -> Engine:
-
         if self._engine is None:
             url = URL.create(
                 "mssql+pyodbc",
@@ -36,15 +32,9 @@ class Database:
                 url,
                 pool_pre_ping=True,
             )
-
         return self._engine
 
-
-    def reflect(
-        self,
-        source: str
-    ) -> ReflectedTable:
-
+    def reflect(self,source: str) -> ReflectedTable:
         schema, _, tablename = source.rpartition(".")
         return (
             ReflectedTable(
@@ -58,20 +48,17 @@ class Database:
             )
         )
 
-
     def query(
         self,
         statement: SelectBase | FromClause,
     ) -> QueryExecutor:
         return QueryExecutor(statement, self.engine)
 
-
     def catalogue(
         self,
         keyword: str | None = None,
         display: bool = False,
     ) -> dict[str, dict[str, list[str]]]:
-
         inspector = inspect(self.engine)
         catalogue = {
             schema: {
@@ -99,11 +86,9 @@ class Database:
                     for obj in objects
                 )
             }
-
         if display:
             pprint(catalogue)
         return catalogue
-
 
     def dispose(self) -> None:
         if self._engine is not None:

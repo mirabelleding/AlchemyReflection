@@ -1,5 +1,4 @@
-# Alchemy-Reflection
-
+# AlchemyReflection
 A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and DataFrame retrieval.</br>
 Designed with an emphasis on API ergonomics and method chaining, the object-oriented interface preserves native SQLAlchemy functionality and interoperability with pandas and Polars.
 
