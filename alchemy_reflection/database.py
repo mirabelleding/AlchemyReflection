@@ -16,8 +16,8 @@ from .reflection import ReflectedTable
 
 
 class Database:
-    def __init__(self,_odbc: str) -> None:
-        self._odbc = _odbc
+    def __init__(self,odbc: str) -> None:
+        self._odbc = odbc
         self.metadata = MetaData()
         self._engine: Engine | None = None
 

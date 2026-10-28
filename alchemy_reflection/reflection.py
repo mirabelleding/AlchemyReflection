@@ -8,9 +8,7 @@ import polars as pl
 from sqlalchemy import (
     CheckConstraint,
     ForeignKeyConstraint,
-    Select,
     Table,
-    select,
 )
 
 if TYPE_CHECKING:
@@ -26,15 +24,17 @@ class ReflectedTable:
         self.sa = table
         self.database = database
 
+    is__clause_element__ = False
+
     def __clause_element__(self) -> Table:
         return self.sa
+
+    def __getattr__(self, name: str):
+        return getattr(self.sa, name)
 
     @property
     def c(self):
         return self.sa.c
-
-    def select(self) -> Select:
-        return select(self.sa)
 
     def to_pd(self) -> pd.DataFrame:
         return self.database.query(self.sa).to_pd()

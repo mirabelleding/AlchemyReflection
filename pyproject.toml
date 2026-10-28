@@ -8,20 +8,32 @@ version = "0.1.1"
 description = "An object-oriented interface for SQLAlchemy, built around method chaining and pandas/Polars interoperability."
 readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
 
 authors = [
     { name = "MI77-LAB" }
 ]
 
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
 dependencies = [
-    "sqlalchemy>=2.0",
-    "pandas>=2.0",
-    "polars>=1.0",
-    "pyodbc>=5.0",
+    "sqlalchemy>=2.0,<3.0",
+    "pandas>=2.0,<4.0",
+    "polars>=1.0,<3.0",
+    "pyodbc>=5.0,<6.0",
 ]
 
 [project.urls]
 Repository = "https://github.com/mirabelleding/AlchemyReflection"
 
 [tool.setuptools.packages.find]
-where = ["alchemy_reflection"]
+where = ["."]
+include = ["alchemy_reflection*"]

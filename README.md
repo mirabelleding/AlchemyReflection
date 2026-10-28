@@ -42,10 +42,8 @@ table = db.reflect("schemaname.tablename")
 pd_df = table.to_pd()
 pl_df = table.to_pl()
 
-# Create a query using ReflectedTable.select()
-stmt = table.select().where(...)
-
 # Create a query using native SQLAlchemy expressions
+stmt = table.join(...)
 stmt = select(table).where(...)
 
 # Execute query and retrieve DataFrames
@@ -55,6 +53,19 @@ pl_df = db.query(stmt).to_pl(stmt)
 # Inspect table metadata
 table.inspect()
 ```
+## Native SQLAlchemy Interoperability
+
+`ReflectedTable` exposes the native SQLAlchemy `Table` interface and delegates attributes and methods not explicitly defined to the underlying table through `__getattr__()`.
+
+```python
+reflected_table.name
+reflected_table.schema
+reflected_table.columns.keys()
+reflected_table.primary_key
+reflected_table.alias("o")
+reflected_table.select()
+```
+
 ## Advanced SQLAlchemy Queries
 
 SQL construction remains entirely native to SQLAlchemy. Below are examples of advanced query expressions and direct DataFrame retrieval.
@@ -63,12 +74,12 @@ import hashlib
 from sqlalchemy import select, func, exists, or_
 
 en_cours = (
-    (e := db.reflect("mi77_lab.experiments").sa.alias("e"))
+    (e := db.reflect("mi77_lab.experiments").alias("e"))
     .select()
     .where(
         e.c.status.in_(["unfinished", "in_exploration"]),
         ~exists().where(
-            db.reflect("mi77_lab.archives").sa.c.experiment_id
+            db.reflect("mi77_lab.archives").c.experiment_id
             == e.c.experiment_id
         ),
     )
@@ -85,7 +96,7 @@ en_cours = (
 next_inventions = (
     db.query(
         select(
-            (i := db.reflect("mi77_lab.inspirations").sa.alias("i"))
+            (i := db.reflect("mi77_lab.inspirations").alias("i"))
             .c.name.label("inspiration"),
             i.c.category,
             en_cours.c.name.label("invention"),
@@ -144,12 +155,12 @@ test.dispose()
 | Class | Attributes / Methods |
 | --- | --- |
 | `Database` | `engine`, `reflect()`, `catalogue()`, `query()`, `dispose()` |
-| `ReflectedTable` | `sa`, `c`, `select()`, `inspect()`, `to_pd()`, `to_pl()` |
-| `QueryExecutor` | `stmt_or_table`, `engine`, `to_pd()`, `to_pl()` |
+| `ReflectedTable` | `sa`, `c`, `inspect()`, `to_pd()`, `to_pl()` |
+| `QueryExecutor` | `statement`, `engine`, `to_pd()`, `to_pl()` |
 
-`Database.reflect()` returns a `ReflectedTable`, while `Database.query()` returns a `QueryExecutor` that accepts SQLAlchemy selectable objects and provides DataFrame retrieval through `to_pd()` and `to_pl()`.
+`Database.reflect()` returns a `ReflectedTable`, while `Database.query()` returns a `QueryExecutor` that accepts SQLAlchemy `Selectable` objects and provides DataFrame retrieval through `to_pd()` and `to_pl()`.
 
-`ReflectedTable.sa` exposes the underlying SQLAlchemy `Table` when a native table object is required. Native SQLAlchemy expressions such as `select(table)` are supported through the clause-element protocol.
+`ReflectedTable.__getattr__()` forwards otherwise undefined attribute access to its underlying SQLAlchemy `Table`; `ReflectedTable.__clause_element__()` enables SQLAlchemy expression coercion. The explicit `.sa` attribute exposes the underlying SQLAlchemy `Table` when a native table object is required.
 
 ## Design Philosophy
 
