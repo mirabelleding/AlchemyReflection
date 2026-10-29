@@ -1,6 +1,7 @@
 # AlchemyReflection
-A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and query result retrieval.</br>
-Designed with an emphasis on API ergonomics and method chaining, the object-oriented interface preserves native SQLAlchemy functionality and interoperability with pandas, Polars, NumPy, and PyArrow.
+A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and query result retrieval.<
+
+Designed with an emphasis on API ergonomics and method chaining, the object-oriented interface extends SQLAlchemy functionality while preserving native interoperability.
 
 ## Installation
 
@@ -37,7 +38,6 @@ from alchemy_reflection import Database
 db = Database(os.environ["DB_ODBC"])
 ```
 Each `Databse` instance maintains its own SQLAlchemy engine and reflected metadata. </br>
-**The required database driver must be installed. SQL Server connections using pyodbc also require an ODBC driver.*
 
 ## Basic Usage
 ```python
@@ -194,7 +194,7 @@ test.dispose()
 
 `Database.reflect()` returns a `ReflectedTable`, while `Database.query()` returns a `QueryExecutor`.
 
-`ReflectedTable.__getattr__()` forwards unresolved attributes are delegated to the underlying SQLAlchemy `Table` first, then to `QueryExecutor` through `__getattr__()`.
+`ReflectedTable.__getattr__()` forwards unresolved attributes are delegated to the underlying SQLAlchemy `Table` first, then to `QueryExecutor`.
 
 `ReflectedTable.__clause_element__()` enables SQLAlchemy expression coercion. The explicit `.sa` attribute exposes the underlying SQLAlchemy `Table` when a native table object is required.
 
