@@ -3,8 +3,6 @@ from __future__ import annotations
 from pprint import pprint
 from typing import TYPE_CHECKING
 
-import pandas as pd
-import polars as pl
 from sqlalchemy import (
     CheckConstraint,
     ForeignKeyConstraint,
@@ -16,6 +14,13 @@ if TYPE_CHECKING:
 
 
 class ReflectedTable:
+    """
+    Extends the SQLAlchemy Table interface with query execution and result
+    retrieval methods from QueryExecutor.
+
+    Unresolved attributes are delegated to the underlying SQLAlchemy Table
+    first, then to QueryExecutor.
+    """
     def __init__(
         self,
         table: Table,
@@ -24,25 +29,29 @@ class ReflectedTable:
         self.sa = table
         self.database = database
 
-    is__clause_element__ = False
+    is_clause_element = False
 
     def __clause_element__(self) -> Table:
         return self.sa
 
     def __getattr__(self, name: str):
-        return getattr(self.sa, name)
+        try:
+            return getattr(self.sa, name)
+        except AttributeError:
+            return getattr(self.database.query(self.sa), name)
 
-    @property
-    def c(self):
-        return self.sa.c
-
-    def to_pd(self) -> pd.DataFrame:
-        return self.database.query(self.sa).to_pd()
-
-    def to_pl(self) -> pl.DataFrame:
-        return self.database.query(self.sa).to_pl()
+    def __dir__(self):
+        return sorted(
+            set(super().__dir__())
+            | set(dir(self.sa))
+            | set(dir(self.database.query(self.sa)))
+        )
 
     def inspect(self) -> None:
+        """
+        Pretty-print the reflected table's metadata and structural information,
+        including its columns, constraints, and other table properties.
+        """
         meta = {
             "schema": self.sa.schema,
             "table": self.sa.name,
