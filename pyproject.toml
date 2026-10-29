@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "AlchemyReflection"
-version = "0.1.1"
+version = "0.1.2"
 description = "An object-oriented interface for SQLAlchemy, built around method chaining and pandas/Polars interoperability."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -30,6 +30,9 @@ dependencies = [
     "polars>=1.0,<3.0",
     "pyodbc>=5.0,<6.0",
 ]
+
+[project.optional-dependencies]
+arrow = ["pyarrow>=15.0,<27.0"]
 
 [project.urls]
 Repository = "https://github.com/mirabelleding/AlchemyReflection"
