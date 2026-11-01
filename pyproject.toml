@@ -5,7 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "AlchemyReflection"
 version = "0.1.2"
-description = "An object-oriented interface for SQLAlchemy, built around method chaining and pandas/Polars interoperability."
+
+description = """An object-oriented interface for SQLAlchemy, \
+designed for database reflection, query execution, and result retrieval, \
+built around method chaining and native interoperability."""
+
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

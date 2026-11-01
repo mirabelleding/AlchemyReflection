@@ -14,6 +14,15 @@ if TYPE_CHECKING:
 
 
 class QueryExecutor:
+    """
+    Execute SQL statements and retrieve results in multiple formats.
+
+    Supports SQLAlchemy selectable constructs, ReflectedTable, and raw
+    SQL strings. Table-like inputs are converted into SQLAlchemy Select
+    objects, while SQL strings are converted into TextClause objects.
+
+    Execution is deferred until a result retrieval method is called.
+    """
     def __init__(
         self,
         statement: Selectable | ReflectedTable | str,
@@ -93,7 +102,7 @@ class QueryExecutor:
         row and column cardinality.
         --------
         e.g.
-        >>> db.query(select(func.count()).select_from(sometable)).scalar()
+        >>> db.query(select(func.count()).select_from(sometable)).to_scalar()
         77
         """
         with self.engine.connect() as conn:
