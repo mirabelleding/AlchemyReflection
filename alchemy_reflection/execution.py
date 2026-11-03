@@ -7,10 +7,10 @@ import pandas as pd
 import polars as pl
 from sqlalchemy import Engine, FromClause, Selectable, select, text
 
-from .reflection import ReflectedTable
-
 if TYPE_CHECKING:
     import pyarrow as pa
+
+    from .reflection import ReflectedTable
 
 
 class QueryExecutor:
@@ -30,7 +30,10 @@ class QueryExecutor:
     ) -> None:
         if isinstance(statement, str):
             statement = text(statement)
-        elif isinstance(statement, (FromClause, ReflectedTable)):
+        elif hasattr(statement, "__clause_element__"):
+            statement = statement.__clause_element__()
+
+        if isinstance(statement, FromClause):
             statement = select(statement)
 
         self.statement = statement

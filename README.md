@@ -189,7 +189,7 @@ test.dispose()
 | Class | Attributes / Methods |
 | --- | --- |
 | `Database` | `engine`, `metadata`, `reflect()`, `catalogue()`, `query()` |
-| `ReflectedTable` | `sa`, `database`, native SQLAlchemy `Table` attributes and methods, `inspect()`, delegated `QueryExecutor` methods |
+| `ReflectedTable` | `sa`, `engine`, native SQLAlchemy `Table` attributes and methods, `inspect()`, delegated `QueryExecutor` methods |
 | `QueryExecutor` | `statement`, `engine`, `to_pd()`, `to_pl()`, `to_numpy()`, `to_arrow()`, `to_records()`, `fetch()`, `to_scalar()` |
 
 `Database.reflect()` returns a `ReflectedTable`, while `Database.query()` returns a `QueryExecutor`.

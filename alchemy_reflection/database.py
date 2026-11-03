@@ -5,6 +5,7 @@ from pprint import pprint
 
 from sqlalchemy import (
     URL,
+    Engine,
     MetaData,
     Selectable,
     Table,
@@ -32,11 +33,15 @@ class Database:
                 query={"odbc_connect": conn},
             )
 
-        self.engine = create_engine(
+        self._engine = create_engine(
             conn,
             pool_pre_ping=True,
         )
         self.metadata = MetaData()
+
+    @property
+    def engine(self) -> Engine:
+        return self._engine
 
     def reflect(self,source: str) -> ReflectedTable:
         """
@@ -59,7 +64,7 @@ class Database:
                     schema=schema,
                     autoload_with=self.engine,
                 ),
-                self,
+                self.engine,
             )
         )
 

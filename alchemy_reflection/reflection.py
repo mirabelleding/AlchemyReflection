@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from pprint import pprint
-from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     CheckConstraint,
+    Engine,
     ForeignKeyConstraint,
     Table,
 )
 
-if TYPE_CHECKING:
-    from .database import Database
+from .execution import QueryExecutor
 
 
 class ReflectedTable:
@@ -24,10 +23,10 @@ class ReflectedTable:
     def __init__(
         self,
         table: Table,
-        database: Database,
+        engine: Engine,
     ) -> None:
         self.sa = table
-        self.database = database
+        self.engine = engine
 
     is_clause_element = False
 
@@ -38,7 +37,7 @@ class ReflectedTable:
         try:
             return getattr(self.sa, name)
         except AttributeError:
-            return getattr(self.database.query(self.sa), name)
+            return getattr(QueryExecutor(self.sa, self.engine), name)
 
     def __dir__(self):
         return sorted(
