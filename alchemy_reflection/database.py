@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from pprint import pprint
+from pprint import pprint as _pprint
 
 from sqlalchemy import (
     URL,
@@ -82,7 +82,7 @@ class Database:
     def catalogue(
         self,
         keyword: str | None = None,
-        display: bool = False,
+        pprint: bool = False,
     ) -> dict[str, dict[str, list[str]]]:
         """
         Return a dictionary of all schemas, tables, and views in the database.
@@ -115,8 +115,8 @@ class Database:
                     for obj in objects
                 )
             }
-        if display:
-            pprint(catalogue)
+        if pprint:
+            _pprint(catalogue)
         return catalogue
 
     def dispose(self) -> None:
