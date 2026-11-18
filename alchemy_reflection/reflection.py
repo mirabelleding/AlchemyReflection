@@ -43,7 +43,7 @@ class ReflectedTable:
         return sorted(
             set(super().__dir__())
             | set(dir(self.sa))
-            | set(dir(self.database.query(self.sa)))
+            | set(dir(QueryExecutor(self.sa, self.engine)))
         )
 
     def inspect(self) -> None:

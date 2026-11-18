@@ -32,11 +32,11 @@ dependencies = [
     "sqlalchemy>=2.0,<3.0",
     "pandas>=2.0,<4.0",
     "polars>=1.0,<3.0",
-    "pyodbc>=5.0,<6.0",
 ]
 
 [project.optional-dependencies]
 arrow = ["pyarrow>=15.0,<27.0"]
+pyodbc = ["pyodbc>=5.0,<6.0"]
 
 [project.urls]
 Repository = "https://github.com/mirabelleding/AlchemyReflection"

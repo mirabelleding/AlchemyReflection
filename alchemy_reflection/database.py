@@ -120,6 +120,4 @@ class Database:
         return catalogue
 
     def dispose(self) -> None:
-        if self.engine is not None:
-            self.engine.dispose()
-            self.engine = None
+        self.engine.dispose()

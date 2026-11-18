@@ -49,8 +49,8 @@ from alchemy_reflection import Database
 # Initialize database connection
 db = Database(os.environ["DB_ODBC"])
 
-# Search and display database objects
-db.catalogue("some keywords", display=True)
+# Search and pretty-print matching tables and views
+db.catalogue("some keywords", pprint=True)
 
 # Instantiate a ReflectedTable
 table = db.reflect("schemaname.tablename")
