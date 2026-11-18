@@ -1,14 +1,21 @@
 # AlchemyReflection
-A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and query result retrieval.<
+A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and query result retrieval.
 
 Designed with an emphasis on API ergonomics and method chaining, the object-oriented interface extends SQLAlchemy functionality while preserving native interoperability.
 
 ## Installation
 
+**Install from PyPI**
+
 ```bash
-pip install git+ssh://git@github.com/mirabelleding/AlchemyReflection.git
+pip install AlchemyReflection
 ```
-**PyArrow is optional and is required only for `to_arrow()`.*
+
+**Install from GitHub**
+
+```bash
+pip install git+https://github.com/mirabelleding/AlchemyReflection.git
+```
 
 ## Connection
 
@@ -22,8 +29,11 @@ from alchemy_reflection import Database
 db = Database("postgresql+psycopg://user:password@localhost:5432/database_name")
 ```
 
-**Raw SQL Server ODBC connection string:**
-
+**Raw SQL Server ODBC connection string:**<br>
+*Install the optional pyodbc dependency*
+```bash
+pip install "AlchemyReflection[pyodbc]"
+```
 ```text
 DRIVER={ODBC Driver 18 for SQL Server};
 SERVER=server_name;
@@ -37,7 +47,7 @@ from alchemy_reflection import Database
 
 db = Database(os.environ["DB_ODBC"])
 ```
-Each `Databse` instance maintains its own SQLAlchemy engine and reflected metadata. </br>
+Each `Database` instance maintains its own SQLAlchemy engine and reflected metadata. </br>
 
 ## Basic Usage
 ```python
@@ -82,10 +92,11 @@ reflected_table.select()
 | `to_pd()` | pandas `DataFrame`, or `Series` for single-column queries |
 | `to_pl()` | Polars `DataFrame`, or `Series` for single-column queries |
 | `to_numpy(dtype=None)` | 2D NumPy array, or 1D for single-column queries; dtype inferred unless specified |
-| `to_arrow()` | PyArrow `Table`, or `Array` for single-column queries; requires PyArrow |
+| `to_arrow()` | PyArrow `Table`, or `Array` for single-column queries; *requires the optional `pyarrow` dependency.* |
 | `to_records()` | List of dictionaries with column names as keys |
 | `fetch(n_rows=None)` | List of SQLAlchemy `Row` objects; all rows are retrieved by default |
 | `to_scalar()` | Scalar value from a single-row, single-column query |
+
 
 ```python
 from sqlalchemy import func, select
@@ -194,14 +205,14 @@ test.dispose()
 
 `Database.reflect()` returns a `ReflectedTable`, while `Database.query()` returns a `QueryExecutor`.
 
-`ReflectedTable.__getattr__()` forwards unresolved attributes are delegated to the underlying SQLAlchemy `Table` first, then to `QueryExecutor`.
+`ReflectedTable.__getattr__()` forwards unresolved attributes to the underlying SQLAlchemy `Table` first, then to `QueryExecutor`.
 
 `ReflectedTable.__clause_element__()` enables SQLAlchemy expression coercion. The explicit `.sa` attribute exposes the underlying SQLAlchemy `Table` when a native table object is required.
 
 
 ## Design Philosophy
 
-Built on the belief that abstractions should eliminate repetitive operations without obscuring the underlying framework or introducing unnecessary complexity. The package simplifies common database operations while while retaining SQLAlchemy's native capabilities.
+Built on the belief that abstractions should eliminate repetitive operations without obscuring the underlying framework or introducing unnecessary complexity. The package simplifies common database operations while retaining SQLAlchemy's native capabilities.
 
 ## License
 MIT License © MI77-LAB
