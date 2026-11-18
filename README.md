@@ -1,4 +1,7 @@
 # AlchemyReflection
+
+[![PyPI](https://img.shields.io/pypi/v/AlchemyReflection)](https://pypi.org/project/AlchemyReflection/)
+
 A lightweight Python package built on SQLAlchemy for database connection management, table reflection, schema inspection, and query result retrieval.
 
 Designed with an emphasis on API ergonomics and method chaining, the object-oriented interface extends SQLAlchemy functionality while preserving native interoperability.
